@@ -1,9 +1,0 @@
-name: package_aragorn_1_2_36
-owner: chrono
-description: Contains a tool suite of fasta/fastq manipulation
-homepage_url: http://mbio-serv2.mbioekol.lu.se/ARAGORN/
-long_description: |
-	Filter fasta file by accession or position, susampled fastq files
-remote_repository_url: 
-categories:
-- Sequence Analysis
