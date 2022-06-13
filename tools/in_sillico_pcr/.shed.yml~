@@ -1,0 +1,9 @@
+name: in_sillico_pcr_0.1
+owner: chrono
+description: Contains tools to performed PCR and qPCR in sillico analysis
+homepage_url: http://172.20.124.12:3000/bvalot3/PythonScript
+long_description: |
+	Using known primers, you can performed in sillico PCR and qPCR analysis
+remote_repository_url: http://172.20.124.12:3000/bvalot3/PythonScript
+categories:
+- Sequence Analysis

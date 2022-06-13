@@ -1,0 +1,53 @@
+<tool id="fasta_filter_region_wrapper" name="Filter region" version="0.1">
+  <description></description>
+  <requirements>
+	<requirement type="package" version="1.78">biopython</requirement>
+  </requirements>
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>$__tool_directory__/fasta_filter_to_region.py -v</version_command>
+  <command>
+    $__tool_directory__/fasta_filter_to_region.py
+	-o '$output'
+	'$fasta'
+	#for $reg in $regions.split(" ")
+	 '$reg'
+	#end for
+  </command>
+  <inputs>
+    <param name="fasta" type="data" format="fasta" label="Database to filter on fasta" help="FASTA format" />
+	<param name="regions" type="text" value="" optional="false" size="4X50"
+		   label="List of region to conserved in format accession:start-stop"
+		   help="Separated each regions by a space" />
+  </inputs>
+  <outputs>
+    <data name="output" format="fasta" label="${tool.name} on ${on_string}: fasta" />
+  </outputs>
+  <tests>
+	<test expect_num_outputs="1">
+      <param name="fasta" value="input.fasta" />
+      <param name="regions" value="NODE_1_length_344587_cov_27.773165:10-190" />
+      <output name="output" file="filter_region.fasta" ftype="fasta" />
+    </test>
+  </tests>
+  <help>
+**What it does**
+
+Filter a fasta file based on regions.
+
+**Examples**
+
+CP000822.1:458-1689 
+
+NODE_1_length_721117_cov_11.496472:14500-18320
+
+**Citation et licences**
+
+This Galaxy tool is Copyright © 2018 `B. Valot` and is released
+under the `GPL3 license`.
+
+  </help>
+  <citations>
+  </citations>
+</tool>

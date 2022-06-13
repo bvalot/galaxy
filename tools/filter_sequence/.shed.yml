@@ -1,0 +1,9 @@
+name: fasta_filter_0_1
+owner: chrono
+description: Contains a tool suite of fasta/fastq manipulation
+homepage_url: http://172.20.124.12:3000/bvalot3/PythonScript
+long_description: |
+    Filter fasta file by accession or position, susampled fastq files
+remote_repository_url: http://172.20.124.12:3000/bvalot3/PythonScript
+categories:
+- Sequence Analysis

@@ -1,0 +1,78 @@
+<tool id="primer_search_wrapper" name="Primer Search" version="0.1">
+  <description></description>
+  <requirements>
+    <requirement type="package" version="1.28">gassst</requirement>
+	<requirement type="package" version="1.78">biopython</requirement>
+  </requirements>
+    <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>$__tool_directory__/primer_search.py -v</version_command>
+  <command>
+    $__tool_directory__/primer_search.py -o $output 
+    #if str($error)
+      -e $error
+    #end if
+    #if str($min)
+      -m $min
+    #end if
+    #if str($max)
+      -M $max
+    #end if
+    #if $keep
+      -k
+    #end if
+    #if $remove
+      -r 
+    #end if
+    $forward $reverse $database 2> $logfile
+  </command>
+  <inputs>
+    <param name="database" type="data" format="fasta" label="Database to search on fasta" help="FASTA format" />
+	<param name="forward" type="text" value="" optional="false" size="50"
+		   label="Forward primer sequence"
+		   help="DNA sequence, letters corresponding to multiple nucleotide allowed" />
+	<param name="reverse" type="text" value="" optional="false" size="50"
+		   label="Reverse primer sequence"
+		   help="DNA sequence, letters corresponding to multiple nucleotide allowed" />
+    <param name="error" type="integer" value="1" optional="true"
+		   label="Maximun error allowed on match" help="Number of mismatch allowed for each primer" />
+    <param name="min" type="integer" value="100" optional="true"
+		   label="Min len amplicon size" help="Only amplicon with this minimun length were reported" />
+    <param name="max" type="integer" value="1500" optional="true"
+		   label="Max len amplicon size" help="Only amplicon with this maximun length were reported" />
+    <param name="keep" type="boolean" checked="false"
+		   label="If set, Keep description instead of report PCR position" />
+    <param name="remove" type="boolean" checked="false"
+		   label="If set, remove primer sequance from reported amplicons" />
+  </inputs>
+  <outputs>
+    <data name="logfile" format="txt" label="${tool.name} on ${on_string}: log" />
+    <data name="output" format="fasta" label="${tool.name} on ${on_string}: fasta" />
+  </outputs>
+  <tests>
+	<test expect_num_outputs="2">
+      <param name="database" value="input.fasta" />
+      <param name="forward" value="ACCTGGTGTACGCCTCGCTGAC" />
+      <param name="reverse" value="GACATAGATGCCCTGCCCCTTGAT" />
+      <param name="error" value="2" />
+      <output name="output" file="pcr.fasta" ftype="fasta" />
+    </test>
+  </tests>
+  <help>
+**What it does**
+
+Search primer on database and return amplicons on fasta format.
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2018 `B. Valot` and is released under the `GPL3 license`.
+
+This tool uses Gassst, which is licensed separately.
+Please cite: Rizk G. and Dominique Lavenier D. (2010) GASSST: global alignment short sequence search tool. *Bioinformatics* 26(20), 2534-2540.
+http://www.irisa.fr/symbiose/projects/gassst/
+  </help>
+  <citations>
+	<citation type="doi">10.1093/bioinformatics/btq485</citation>
+  </citations>
+</tool>

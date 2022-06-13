@@ -1,0 +1,106 @@
+<tool id="fastq_subsampling_wrapper" name="Fastq subsampling" version="0.1">
+  <description></description>
+  <requirements>
+	<requirement type="package" version="0.15">pysam</requirement>
+  </requirements>
+    <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>$__tool_directory__/fastq_subsampling.py -v</version_command>
+  <command>
+    $__tool_directory__/fastq_subsampling.py
+	--galaxy
+	#if $fastq.choice == "choice1"
+	  -s '${fastq.single}'
+	#end if
+	#if $fastq.choice == "choice2"
+	  -r '${fastq.forward}'
+	  -l '${fastq.reverse}'
+	#end if
+	#if $fastq.choice == "choice3"
+	  -r '${fastq.pairedfile.forward}'
+	  -l '${fastq.pairedfile.reverse}'
+	#end if
+	#if str($coverage)
+	  -c $coverage
+	#end if
+	$size
+	&amp;> '$logfile'
+  </command>
+  <inputs>
+	<conditional name="fastq" >
+      <param name="choice" type="select" label="Type of reads to subsampling" help="" >
+        <option value="choice1" selected="true">Single</option>
+        <option value="choice2">Paired (separated)</option>
+        <option value="choice3">Paired</option>
+      </param>
+      <when value="choice1">
+		<param name="single" type="data" format="fastq,fastq.gz"
+			   label="Single read file" help="Fastq(gz) format" />
+      </when>
+      <when value="choice2">
+ 		<param name="forward" type="data" format="fastq,fastq.gz"
+			   label="Forward read file" help="Fastq(gz) format" />
+		<param name="reverse" type="data" format="fastq,fastq.gz"
+			   label="Reverse read file" help="Fastq(gz) format" />
+      </when>
+      <when value="choice3">
+		<param name="pairedfile" type="data_collection" format="fastq,fastq.gz"
+			   label="Paired of read files" help="Fastq(gz) format"
+			   collection_type="paired" />
+      </when>
+    </conditional>
+	<param name="size" type="integer" optional="false" value="6000000"
+		   label="Size of the genome in bp" />
+    <param name="coverage" type="integer" value="40" optional="true"
+		   label="Mean coverage to sampling" />
+  </inputs>
+
+  <outputs>
+    <data name="logfile" format="txt" label="${tool.name} on ${on_string}: log" />
+	<data name="singleout" format="fastqsanger.gz"
+		  label="${tool.name} on ${fastq.single.name}"
+		  from_work_dir="1.fastq.gz">
+	  <filter>fastq['choice'] == "choice1"</filter>
+	</data>
+	<data name="forwardout" format="fastqsanger.gz"
+		  label="${tool.name} on ${fastq.forward.name}"
+		  from_work_dir="1.fastq.gz">
+	  <filter>fastq['choice'] == "choice2"</filter>
+	</data>
+	<data name="reverseout" format="fastqsanger.gz"
+		  label="${tool.name} on ${fastq.reverse.name}"
+		  from_work_dir="2.fastq.gz">
+	  <filter>fastq['choice'] == "choice2"</filter>
+	</data>
+	<collection name="paired_output" type="paired"
+				label="${tool.name} on ${fastq.pairedfile.name}">
+	  <data name="forward" format="fastqsanger.gz"
+			from_work_dir="1.fastq.gz">
+	  </data>
+	  <data name="reverse" format="fastqsanger.gz"
+			from_work_dir="2.fastq.gz">
+	  </data>
+	  <filter>fastq['choice'] == "choice3"</filter>
+	</collection>
+  </outputs>
+  <tests>
+	<test expect_num_outputs="3">
+      <param name="choice" value="choice2" />
+	  <param name="forward" value="input_R1.fastq.gz" />
+	  <param name="reverse" value="input_R2.fastq.gz" />
+	</test>
+  </tests>
+  <help>
+**What it does**
+
+Subsampling a single or a paired of fastq(.gz) file to a given coverage
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2018 `B. Valot` and is released under the `GPL3 license`.
+
+  </help>
+  <citations>
+  </citations>
+</tool>

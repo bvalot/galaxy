@@ -1,0 +1,46 @@
+<tool id="fasta_filter_accession_wrapper" name="Filter accession" version="0.1">
+  <description></description>
+  <requirements>
+	<requirement type="package" version="1.78">biopython</requirement>
+  </requirements>
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>$__tool_directory__/fasta_filter_to_accession.py -v</version_command>
+  <command>
+    $__tool_directory__/fasta_filter_to_accession.py
+	-o '$output'
+	'$fasta'
+	#for $access in $accessions.split(" ")
+	 '$access'
+	#end for
+  </command>
+  <inputs>
+    <param name="fasta" type="data" format="fasta" label="Database to filter on fasta" help="FASTA format" />
+	<param name="accessions" type="text" value="" optional="false" size="4X50"
+		   label="List of accessions to conserved"
+		   help="Separated each accession by a space" />
+  </inputs>
+  <outputs>
+    <data name="output" format="fasta" label="${tool.name} on ${on_string}: fasta" />
+  </outputs>
+  <tests>
+	<test expect_num_outputs="1">
+      <param name="fasta" value="input.fasta" />
+      <param name="accessions" value="NODE_236_length_305_cov_44.745614" />
+      <output name="output" file="filter_acc.fasta" ftype="fasta" />
+    </test>
+  </tests>
+  <help>
+**What it does**
+
+Filter a fasta file based on accessions.
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2018 `B. Valot` and is released under the `GPL3 license`.
+
+  </help>
+  <citations>
+  </citations>
+</tool>
