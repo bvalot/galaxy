@@ -1,0 +1,11 @@
+name: panisa
+owner: bvalot
+description: Contains wrapper for Insertion Sequence analysis with panISa
+homepage_url: https://github.com/bvalot/panISa
+long_description: |
+    Search Insertion Sequence on bacterial alignment data using panISa software
+
+    https://doi.org/10.1093/bioinformatics/bty479
+remote_repository_url: https://github.com/bvalot/panISa
+categories:
+- Sequence Analysis

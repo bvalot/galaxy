@@ -1,0 +1,2 @@
+Sample	Chromosome	Start_Position	Stop_Position	Potential_sequence	Potential_IS	Alignment
+panisa.txt	contig-2000003	334442	334451	CAATGTCATCAACTTTGGAAATTATCCATA-GCAGGGCTGCAGCTTAGGTTGATGACATTG	ISPa1635	two side

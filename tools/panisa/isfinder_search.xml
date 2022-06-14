@@ -1,0 +1,87 @@
+<tool id="isfinder_search_wrapper" name="ISFinder search" version="0.1.6">
+  <description>Search IS homology in ISFinder from panISa output</description>
+  <requirements>
+	<requirement type="package" version="0.1.6">panisa</requirement>
+  </requirements>
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>  
+  <version_command>ISFinder_search.py -v</version_command>
+  <command>
+    ISFinder_search.py
+    -r ' '
+    #if str($length)
+      -l $length
+    #end if
+    #if str($identity)
+      -i $identity
+    #end if
+    #if str($evalue)
+	  -e $evalue
+    #end if
+    #if str($alignment)
+	  -a $alignment
+    #end if
+	#for $panisa in $panisa_list:
+        #if $panisa:
+            '$panisa'
+        #end if
+    #end for
+	#for $panisa in $panisa_list:
+        #if $panisa:
+            | sed -e "~s/`echo $panisa.file_name | sed -e
+			'~s/.*\///'`/$panisa.name.replace('panISa on ', '')/"
+        #end if
+	#end for
+	> '$output'
+	2> /dev/null
+  </command>
+  <inputs>
+    <param name="panisa_list" type="data"
+		   format="tabular" multiple="true"
+		   label="Panisa result to merge"
+		   help="Panisa output in tabular format" />
+	<param name="length" type="integer" value="30"
+		   optional="true"
+		   label="Length of the IRR-IRL search" />
+	<param name="identity" type="integer" value="90"
+		   optional="true" min="0" max="100"
+		   label="Percentage of expected identity" />
+	<param name="evalue" type="float" value="0.001"
+		   optional="true"
+		   label="Expected max evalue" />
+	<param name="alignment" type="integer" value="80"
+		   optional="true" min="0" max="100"
+		   label="Percentage of expected coverage" />	
+  </inputs>
+  <outputs>
+    <data name="output" format="tabular" label="${tool.name} on	${on_string}">
+	  <!-- <actions> -->
+      <!--   <action name="column_names" type="metadata" default="Chromosome,End position,End clipped reads,Direct repeats,Start position,Start clipped reads,Inverted repeats,Left sequence,Right sequence" /> -->
+      <!-- </actions> -->
+	</data>
+  </outputs>
+  <tests>
+	<test expect_num_outputs="1">
+      <param name="panisa_list" ftype="tabular" value="panisa.txt" />
+      <output name="output" file="isfinder.txt" ftype="tabular" />	  
+	</test>
+  </tests>
+  <help>
+**What it does**
+
+Automate search integrative element (IS) homology in ISFinder from panISa output.
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2018 `B. Valot` and is released under the `GPL3 license`.
+
+PanISa program was publised recently:
+
+Treepong, P., Guyeux, C., Meunier, A., Couchoud, C., Hocquet, D. et Valot, B. (2018). PanISa : Ab initio detection of insertion sequences in bacterial genomes from short read sequence
+data. Bioinformatics.
+  </help>
+  <citations>
+	<citation type="doi">10.1093/bioinformatics/bty479</citation>
+  </citations>
+</tool>

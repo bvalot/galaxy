@@ -1,0 +1,74 @@
+<tool id="panisa2_wrapper" name="PanISa: IS search" version="0.1.6">
+  <description>Search integrative element (IS) insertion on a genome using BAM alignment</description>
+  <requirements>
+	<requirement type="package" version="0.1.6">panisa</requirement>
+  </requirements>
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>panISa.py -v</version_command>
+  <command>
+    panISa.py
+    #if str($quality)
+      -q $quality
+    #end if
+    #if str($minimun)
+      -m $minimun
+    #end if
+    #if str($size)
+      -s $size
+    #end if
+    #if str($percentage)
+	  -p $percentage
+    #end if
+	'$bam' > '$output'
+  </command>
+  <inputs>
+    <param name="bam" type="data"
+		   format="bam"
+		   label="Alignment result"
+		   help="Bam format" />
+	<param name="quality" type="integer" value="20"
+		   optional="true"
+		   label="Minimun alignment quality value to conserve a clipped" />
+	<param name="minimun" type="integer" value="5"
+		   optional="true"
+		   label="Minimun number of clipped reads to look at IS on a position" />
+	<param name="size" type="integer" value="20"
+		   optional="true"
+		   label="Maximun size of direct repeat region" />
+	<param name="percentage" type="float" value="0.8"
+		   optional="true"
+		   label="Minimum percentage of same base to create consensus" />
+  </inputs>
+  <outputs>
+    <data name="output" format="tabular" label="panISa on ${bam.name}">
+	  <!-- <actions> -->
+      <!--   <action name="column_names" type="metadata" default="Chromosome,End position,End clipped reads,Direct repeats,Start position,Start clipped reads,Inverted repeats,Left sequence,Right sequence" /> -->
+      <!-- </actions> -->
+	</data>
+  </outputs>
+  <tests>
+	<test expect_num_outputs="1">
+      <param name="bam" value="input.bam" />
+      <output name="output" file="panisa.txt" ftype="tabular" />	  
+	</test>
+  </tests>
+  <help>
+**What it does**
+
+Search integrative element (IS) insertion on a genome using BAM alignment.
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2018 `B. Valot` and is released under the `GPL3 license`.
+
+PanISa program was publised :
+
+Treepong, P., Guyeux, C., Meunier, A., Couchoud, C., Hocquet, D. et Valot, B. (2018). PanISa : Ab initio detection of insertion sequences in bacterial genomes from short read sequence
+data. Bioinformatics.
+  </help>
+  <citations>
+	<citation type="doi">10.1093/bioinformatics/bty479</citation>
+  </citations>
+</tool>
