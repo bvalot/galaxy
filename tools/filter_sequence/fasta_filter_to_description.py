@@ -3,8 +3,9 @@
 
 """Return a filter fasta file containing key words on description"""
 
-import sys
 import argparse
+import sys
+
 from Bio import SeqIO
 
 desc = "Filter a fasta file based on description."

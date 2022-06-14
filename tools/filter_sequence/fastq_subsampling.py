@@ -3,13 +3,14 @@
 
 """Return a subsampling fastq file"""
 
-import sys
 import argparse
-import pysam
-import random
-import os
 import gzip
 import io
+import os
+import random
+import sys
+
+import pysam
 
 desc = "Subsampling a single or a paired of fastq(.gz) file"
 command = argparse.ArgumentParser(

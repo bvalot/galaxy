@@ -3,11 +3,12 @@
 
 """Search primers on database and return result"""
 
-import sys
 import argparse
 import os
 import subprocess
+import sys
 import tempfile
+
 from Bio import SeqIO
 
 gasst_exe = "Gassst"

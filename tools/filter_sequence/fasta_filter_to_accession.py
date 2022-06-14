@@ -3,8 +3,9 @@
 
 """Return a filter fasta file for list of accession"""
 
-import sys
 import argparse
+import sys
+
 from Bio import SeqIO
 
 desc = "Filter a fasta file based on ."
