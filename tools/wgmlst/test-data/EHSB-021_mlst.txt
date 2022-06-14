@@ -1,0 +1,2 @@
+Sample	ST	adk	fumC	gyrB	icd	mdh	purA	recA
+EHSB-021	155	6	4	14	16	24	8	14

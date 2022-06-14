@@ -1,0 +1,12 @@
+name: pymlst
+owner: bvalot
+description: Contains wrappers for cg/wgMLST analysis with pyMLST
+homepage_url: https://github.com/bvalot/pyMLST
+long_description: |
+    Performed MLST and cg/wgMLST analysis with pyMLST software
+    * Import database from pubMLST or cgMLST.org
+    * Add or search assembly genome or raw reads
+    * Export results or sequences for phylogeny
+remote_repository_url: https://github.com/bvalot/pyMLST
+categories:
+- Sequence Analysis

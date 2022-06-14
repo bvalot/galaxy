@@ -1,0 +1,180 @@
+<tool id="clamlst_search_wrapper" name="Search MLST database" version="2.1.3">
+  <description></description>
+  <requirements>
+	<requirement type="package" version="2.1.3">pymlst</requirement>
+  </requirements>
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>claMLST -v</version_command>
+  <command>
+    claMLST
+	#if $data.input == "fasta"
+	  search
+	#else
+	  search2
+	#end if
+	#if str($coverage)
+	  -c $coverage
+	#end if
+	#if str($identity)
+	  -i $identity
+	#end if
+	#if $fasta
+	  -f '${fastaout}'
+	#end if
+	#if $data.input == "fasta"
+      '${database}' '${data.fastain}'
+	  | sed -e "~s/`echo $data.fastain.file_name | sed -e '~s/.*\///' |
+	  sed -e '~s/.dat$//'`/$data.fastain.name/"
+    #end if
+	#if $data.input == "fastqsingle"
+	  #if str($data.reads)
+	    -r $data.reads
+	  #end if
+	  --single
+	  '${database}' '${data.single}'
+	  | sed -e "~s/`echo $data.single.file_name | sed -e '~s/.*\///'
+	  | sed -e '~s/.dat$//'`/$data.single.name/"
+    #end if
+	#if $data.input == "fastqpaired"
+	  #if str($data.reads)
+	    -r $data.reads
+	  #end if
+	  --paired  
+      '${database}' '${data.forward}' '${data.reverse}'
+	  | sed -e "~s/`echo $data.forward.file_name | sed -e '~s/.*\///'
+	  | sed -e '~s/.dat$//'`/$data.forward.name/"
+    #end if
+	#if $data.input == "fastqpaired2"
+	  #if str($data.reads)
+	    -r $data.reads
+	  #end if
+	  --paired  
+      '${database}' '${data.pairedfile.forward}'
+	  '${data.pairedfile.reverse}'
+	  | sed -e "~s/`echo $data.pairedfile.forward.file_name | sed -e '~s/.*\///'
+	  | sed -e '~s/.dat$//'`/$data.pairedfile.name/"
+    #end if
+	> '${mlst}'
+	#if $log
+	  2> '${logfile}'
+	#end if
+  </command>
+  <inputs>
+	<param name="database" type="data"
+           format="sqlite"
+           label="Classical MLST database"
+           help="Sqlite format from claMLST import" />
+	<conditional name="data">
+	  <param name="input" type="select" label="Select type of data">
+        <option value="fasta" selected="true">Assembly (fasta)</option>
+        <option value="fastqsingle">Raw data (single)</option>
+        <option value="fastqpaired">Raw data (paired separated)</option>
+        <option value="fastqpaired2">Raw data (paired)</option>
+	  </param>
+	  <when value="fasta">
+        <param name="fastain" type="data" format="fasta"
+               label="Assembly Genome" help="Fasta format" />
+      </when>	  
+	  <when value="fastqsingle">
+        <param name="single" type="data" format="fastq,fastq.gz"
+               label="Single read file" help="Fastq(gz) format" />
+		<param name="reads" type="integer" value="10" optional="true"
+               label="Minimum reads coverage to search gene" />
+      </when>
+	  <when value="fastqpaired">
+        <param name="forward" type="data" format="fastq,fastq.gz"
+               label="Forward read file" help="Fastq(gz) format" />
+        <param name="reverse" type="data" format="fastq,fastq.gz"
+               label="Reverse read file" help="Fastq(gz) format" />
+		<param name="reads" type="integer" value="10" optional="true"
+			   label="Minimum reads coverage to search gene" />
+      </when>
+	  <when value="fastqpaired2">
+        <param name="pairedfile" type="data_collection" format="fastq,fastq.gz"
+               label="Paired of read files" help="Fastq(gz) format"
+               collection_type="paired" />
+		<param name="reads" type="integer" value="10" optional="true"
+			   label="Minimum reads coverage to search gene" />
+	  </when>	
+	</conditional>
+	<param name="fasta" type="boolean" checked="false"
+           label="Write fasta file with MLST genes allele" />
+	<param name="identity" type="float" value="0.9" optional="false"
+		   label="Identity"
+		   help="Minimum identity to search gene" />
+	<param name="coverage" type="float" value="0.9" optional="false"
+		   label="Coverage"
+		   help="Minimum coverage to search gene" />
+	<param name="log" type="boolean" checked="false"
+           label="Write log file" />	
+  </inputs>
+  <outputs>
+    <data name="logfile" format="txt" label="${tool.name} on ${on_string}: log">
+	  <filter>log</filter>
+	</data>
+    <data name="mlst" format="txt" label="${tool.name} on ${on_string}: mlst" />
+    <data name="fastaout" format="fasta" label="${tool.name} on {on_string}: fasta">
+	  <filter>fasta</filter>
+	</data>
+  </outputs>
+  <tests>
+	<test expect_num_outputs="1">
+	  <param name="database" value="clamlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fasta" />
+		<param name="fastain" ftype="fasta" value="EHSB-021.fasta" />
+	  </conditional>
+	  <param name="identity" value="0.8" />
+	  <output name="mlst" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="155\t6\t4\t14\t16\t24\t8\t14" />
+	  </assert_contents>
+	  </output>
+	</test>
+	<test expect_num_outputs="3">
+	  <param name="database" value="clamlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqpaired" />
+		<param name="forward" ftype="fastq.gz" value="EHSB-021_R1.fastq.gz" />
+		<param name="reverse" ftype="fastq.gz" value="EHSB-021_R2.fastq.gz" />
+		<param name="reads" value="5" />
+	  </conditional>
+	  <param name="fasta" value="true" />
+	  <param name="log" value="true" />
+	  <output name="fastaout" ftype="fasta">
+		<assert_contents>
+		  <has_n_lines n="14" />
+		</assert_contents>
+	  </output>
+	  <output name="mlst" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="4\t14\t16\t24\t8\t14" />
+	  </assert_contents>
+	  </output>
+	</test>
+  </tests>
+  <help>
+**What it does**
+
+Search ST number from pubMLST database
+
+You can use
+- Genome assembly (blat search)
+- Raw data (kma search)
+
+**Options:**
+
+  -i, --identity FLOAT   Minimum identity to search gene (default=0.9).
+  -c, --coverage FLOAT   Minimum coverage to search gene (default=0.95).
+  -r, --reads INTEGER    Minimum reads coverage to search gene (default=10).
+  -f, --fasta FILENAME   Write fasta file with gene allele.
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2022 `B. Valot` and is released under the `GPL3 license`.
+  </help>
+  <citations>
+  </citations>
+</tool>

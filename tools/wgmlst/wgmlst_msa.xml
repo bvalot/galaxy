@@ -1,0 +1,69 @@
+<tool id="wgmlst_msa_wrapper" name="MSA of cg/wgMLST database" version="2.1.3">
+  <description></description>
+  <requirements>
+	<requirement type="package" version="2.1.3">pymlst</requirement>
+  </requirements>
+  <stdio>
+    <exit_code range="1:" level="fatal" />
+  </stdio>
+  <version_command>wgMLST -v</version_command>
+  <command>
+    wgMLST msa
+	#if str($genes)
+	  -f '${genes}'
+	#end if
+	#if $realign
+	  --realign
+	#end if  
+	'${database}' > '${msa}'
+	#if $log
+    2> '${logfile}'
+    #end if
+  </command>
+  <inputs>
+	<param name="database" type="data"
+           format="sqlite"
+           label="cg/wgMLST database"
+           help="Sqlite format from cg/wgMLST database" />
+	<param name="genes" type="data"
+           format="txt"
+           label="Genes list"
+           help="File containing list of genes to extract" />
+	<param name="realign" type="boolean" checked="false"
+           label="Realign genes with same length" />
+	<param name="log" type="boolean" checked="false"
+           label="Write log file" /> 
+  </inputs>
+  <outputs>
+    <data name="logfile" format="txt" label="Sequence of
+											 ${database.name}: log">
+	  <filter>log</filter>
+	</data>
+	<data name="msa" format="fasta" label="MSA of ${database.name}: fasta" />
+  </outputs>
+  <tests>
+	<test expect_num_outputs="1">
+      <param name="database" value="wgmlst_ecoli.db" />
+	  <param name="genes" value="wgmlst_ecoli.db.gene" />
+	  <param name="realign" value="true" />
+      <output name="msa" ftype="fasta" file="wgmlst_ecoli.db.msa" />
+    </test>
+  </tests>
+  <help>
+**What it does**
+
+Compute Multiple Sequence Alignment from a wgMLST DATABASE
+
+**Options**
+
+  -f, --file FILENAME    File containing list of coregenes to extract
+                         (default:all coregenes).
+  -r, --realign          Realign genes with same length (Default:No).
+
+**License and citation**
+
+This Galaxy tool is Copyright © 2022 `B. Valot` and is released under the `GPL3 license`.
+  </help>
+  <citations>
+  </citations>
+</tool>
