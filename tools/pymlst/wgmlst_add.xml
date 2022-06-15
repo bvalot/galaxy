@@ -7,7 +7,8 @@
     <exit_code range="1:" level="fatal" />
   </stdio>
   <version_command>wgMLST -v</version_command>
-  <command>
+  <command><![CDATA[
+	cp '${database}' '${databaseout}' &&
     wgMLST
 	#if $data.input == "fasta"
 	  add
@@ -26,7 +27,7 @@
 	  #else
 	    -s '$data.fastain.name.replace(" ", "_").replace("-", "_")'
 	  #end if
-      '${database}' '${data.fastain}'
+      '${databaseout}' '${data.fastain}'
     #end if
 	#if $data.input == "fastqsingle"
 	  #if str($data.reads)
@@ -37,7 +38,7 @@
 	  #else
 	    -s '$data.single.name.replace(" ", "_").replace("-", "_")'
 	  #end if
-	  '${database}' '${data.single}'
+	  '${databaseout}' '${data.single}'
     #end if
 	#if $data.input == "fastqpaired"
 	  #if str($data.reads)
@@ -48,7 +49,7 @@
 	  #else
 	    -s '$data.forward.name.replace(" ", "_").replace("-", "_")'
 	  #end if
-      '${database}' '${data.forward}' '${data.reverse}'
+      '${databaseout}' '${data.forward}' '${data.reverse}'
     #end if
 	#if $data.input == "fastqpaired2"
 	  #if str($data.reads)
@@ -59,12 +60,13 @@
 	  #else
 	    -s '$data.pairedfile.name.replace(" ", "_").replace("-", "_")'
 	  #end if
-      '${database}' '${data.pairedfile.forward}'
+      '${databaseout}' '${data.pairedfile.forward}'
 	  '${data.pairedfile.reverse}'
     #end if
 	#if $log
 	  2> '${logfile}'
 	#end if
+	]]>
   </command>
   <inputs>
 	<param name="database" type="data"
@@ -125,12 +127,14 @@
            label="Write log file" />	
   </inputs>
   <outputs>
+    <data name="databaseout" format="sqlite" label="${database.name}">
+	</data>
     <data name="logfile" format="txt" label="${tool.name} on ${on_string}: log">
 	  <filter>log</filter>
-	</data>
+	</data>	
   </outputs>
   <tests>
-	<test expect_num_outputs="1">
+	<test expect_num_outputs="2">
 	  <param name="database" value="wgmlst_ecoli.db" />
 	  <conditional name="data">
 		<param name="input" value="fasta" />
@@ -145,7 +149,7 @@
 	  </assert_contents>
 	  </output>
 	</test>
-	<test expect_num_outputs="1">
+	<test expect_num_outputs="2">
 	  <param name="database" value="wgmlst_ecoli.db" />
 	  <param name="strain" value="EHSB-021" />
 	  <conditional name="data">
