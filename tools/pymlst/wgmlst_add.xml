@@ -9,7 +9,8 @@
   <version_command>wgMLST -v</version_command>
   <command><![CDATA[
 	cp '${database}' '${databaseout}' &&
-    wgMLST
+	pyMLST configure -l DEBUG &&
+    wgMLST 
 	#if $data.input == "fasta"
 	  add
 	#else

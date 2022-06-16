@@ -10,6 +10,7 @@
   <version_command>claMLST -v</version_command>
   <command><![CDATA[
     ln -s $database.file_name \$_GALAXY_JOB_TMP_DIR/ &&
+	pyMLST configure -l DEBUG &&
     claMLST
 	#if $data.input == "fasta"
 	  search
