@@ -10,7 +10,6 @@
   <version_command>claMLST -v</version_command>
   <command><![CDATA[
     ln -s $database.file_name \$_GALAXY_JOB_TMP_DIR/ &&
-	pyMLST configure -l DEBUG &&
     claMLST
 	#if $data.input == "fasta"
 	  search
@@ -137,27 +136,27 @@
 	  </assert_contents>
 	  </output>
 	</test>
-	<test expect_num_outputs="3">
-	  <param name="database" value="clamlst_ecoli.db" />
-	  <conditional name="data">
-		<param name="input" value="fastqpaired" />
-		<param name="forward" ftype="fastq.gz" value="EHSB-021_R1.fastq.gz" />
-		<param name="reverse" ftype="fastq.gz" value="EHSB-021_R2.fastq.gz" />
-		<param name="reads" value="5" />
-	  </conditional>
-	  <param name="fasta" value="true" />
-	  <param name="log" value="true" />
-	  <output name="fastaout" ftype="fasta">
-		<assert_contents>
-		  <has_n_lines n="14" />
-		</assert_contents>
-	  </output>
-	  <output name="mlst" ftype="txt">
-	  <assert_contents>
-		<has_text_matching expression="4\t14\t16\t24\t8\t14" />
-	  </assert_contents>
-	  </output>
-	</test>
+	<!-- <test expect_num_outputs="3"> -->
+	<!--   <param name="database" value="clamlst_ecoli.db" /> -->
+	<!--   <conditional name="data"> -->
+	<!-- 	<param name="input" value="fastqpaired" /> -->
+	<!-- 	<param name="forward" ftype="fastq.gz" value="EHSB-021_R1.fastq.gz" /> -->
+	<!-- 	<param name="reverse" ftype="fastq.gz" value="EHSB-021_R2.fastq.gz" /> -->
+	<!-- 	<param name="reads" value="5" /> -->
+	<!--   </conditional> -->
+	<!--   <param name="fasta" value="true" /> -->
+	<!--   <param name="log" value="true" /> -->
+	<!--   <output name="fastaout" ftype="fasta"> -->
+	<!-- 	<assert_contents> -->
+	<!-- 	  <has_n_lines n="14" /> -->
+	<!-- 	</assert_contents> -->
+	<!--   </output> -->
+	<!--   <output name="mlst" ftype="txt"> -->
+	<!--   <assert_contents> -->
+	<!-- 	<has_text_matching expression="4\t14\t16\t24\t8\t14" /> -->
+	<!--   </assert_contents> -->
+	<!--   </output> -->
+	<!-- </test> -->
   </tests>
   <help>
 **What it does**
