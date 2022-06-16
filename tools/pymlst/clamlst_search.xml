@@ -8,7 +8,8 @@
     <exit_code range="1:" level="fatal" />
   </stdio>
   <version_command>claMLST -v</version_command>
-  <command>
+  <command><![CDATA[
+    ln -s -t \$_GALAXY_JOB_TMP_DIR/ $database.file_name  &&
     claMLST
 	#if $data.input == "fasta"
 	  search
@@ -25,7 +26,7 @@
 	  -f '${fastaout}'
 	#end if
 	#if $data.input == "fasta"
-      '${database}' '${data.fastain}'
+      \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.fastain}'
 	  | sed -e "~s/`echo $data.fastain.file_name | sed -e '~s/.*\///' |
 	  sed -e '~s/.dat$//'`/$data.fastain.name/"
     #end if
@@ -34,7 +35,7 @@
 	    -r $data.reads
 	  #end if
 	  --single
-	  '${database}' '${data.single}'
+	  \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.single}'
 	  | sed -e "~s/`echo $data.single.file_name | sed -e '~s/.*\///'
 	  | sed -e '~s/.dat$//'`/$data.single.name/"
     #end if
@@ -43,7 +44,7 @@
 	    -r $data.reads
 	  #end if
 	  --paired  
-      '${database}' '${data.forward}' '${data.reverse}'
+      \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.forward}' '${data.reverse}'
 	  | sed -e "~s/`echo $data.forward.file_name | sed -e '~s/.*\///'
 	  | sed -e '~s/.dat$//'`/$data.forward.name/"
     #end if
@@ -52,7 +53,7 @@
 	    -r $data.reads
 	  #end if
 	  --paired  
-      '${database}' '${data.pairedfile.forward}'
+      \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.pairedfile.forward}'
 	  '${data.pairedfile.reverse}'
 	  | sed -e "~s/`echo $data.pairedfile.forward.file_name | sed -e '~s/.*\///'
 	  | sed -e '~s/.dat$//'`/$data.pairedfile.name/"
@@ -61,6 +62,7 @@
 	#if $log
 	  2> '${logfile}'
 	#end if
+	]]>
   </command>
   <inputs>
 	<param name="database" type="data"
