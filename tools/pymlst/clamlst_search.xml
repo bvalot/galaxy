@@ -9,6 +9,7 @@
   </stdio>
   <version_command>claMLST -v</version_command>
   <command><![CDATA[
+    #set $databaselink = $database.file_name.split("/")[-1]
     ln -s $database.file_name \$_GALAXY_JOB_TMP_DIR/ &&
     claMLST
 	#if $data.input == "fasta"
@@ -26,37 +27,52 @@
 	  -f '${fastaout}'
 	#end if
 	#if $data.input == "fasta"
-      \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.fastain}'
-	  | sed -e "~s/`echo $data.fastain.file_name | sed -e '~s/.*\///' |
-	  sed -e '~s/.dat$//'`/$data.fastain.name/"
+	  \$_GALAXY_JOB_TMP_DIR/'${databaselink}'
+	  #for $datain in $data.fastain:
+	    '${datain}'
+	  #end for
+	  #for $datain in $data.fastain:
+	    #set $name = $datain.file_name.split("/")[-1].rstrip(".dat")
+		| sed -e "~s/$name/$datain.name/"
+	  #end for
     #end if
 	#if $data.input == "fastqsingle"
 	  #if str($data.reads)
 	    -r $data.reads
 	  #end if
 	  --single
-	  \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.single}'
-	  | sed -e "~s/`echo $data.single.file_name | sed -e '~s/.*\///'
-	  | sed -e '~s/.dat$//'`/$data.single.name/"
+	  \$_GALAXY_JOB_TMP_DIR/'${databaselink}' 
+	  #for $datain in $data.single:
+	    '${datain}'
+	  #end for
+	  #for $datain in $data.single:
+	    #set $name = $datain.file_name.split("/")[-1].rstrip(".dat")
+		| sed -e "~s/$name/$datain.name/"
+	  #end for
     #end if
 	#if $data.input == "fastqpaired"
 	  #if str($data.reads)
 	    -r $data.reads
 	  #end if
-	  --paired  
-      \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.forward}' '${data.reverse}'
-	  | sed -e "~s/`echo $data.forward.file_name | sed -e '~s/.*\///'
-	  | sed -e '~s/.dat$//'`/$data.forward.name/"
+	  --paired 
+	  \$_GALAXY_JOB_TMP_DIR/'${databaselink}' 
+	  '${data.pairedfile.forward}' '${data.pairedfile.reverse}'
+	  #set $name = $data.pairedfile.forward.file_name.split("/")[-1].rstrip(".dat")
+	  | sed -e "~s/$name/$data.pairedfile.name/"
     #end if
 	#if $data.input == "fastqpaired2"
 	  #if str($data.reads)
 	    -r $data.reads
 	  #end if
-	  --paired  
-      \$_GALAXY_JOB_TMP_DIR/`echo $database.file_name | sed -e '~s/.*\///'` '${data.pairedfile.forward}'
-	  '${data.pairedfile.reverse}'
-	  | sed -e "~s/`echo $data.pairedfile.forward.file_name | sed -e '~s/.*\///'
-	  | sed -e '~s/.dat$//'`/$data.pairedfile.name/"
+	  --paired 
+	  \$_GALAXY_JOB_TMP_DIR/'${databaselink}' 
+	  #for $datain in $data.pairedfilelist:
+	    '${datain.forward}' '${datain.reverse}'
+	  #end for
+	  #for $datain in $data.pairedfilelist:
+	    #set $name = $datain.forward.file_name.split("/")[-1].rstrip(".dat")
+		| sed -e "~s/$name/$datain.name/"
+	  #end for
     #end if
 	> '${mlst}'
 	#if $log
@@ -73,31 +89,32 @@
 	  <param name="input" type="select" label="Select type of data">
         <option value="fasta" selected="true">Assembly (fasta)</option>
         <option value="fastqsingle">Raw data (single)</option>
-        <option value="fastqpaired">Raw data (paired separated)</option>
-        <option value="fastqpaired2">Raw data (paired)</option>
+		<option value="fastqpaired">Raw data (paired)</option>
+        <option value="fastqpaired2">Raw data (List of paired)</option>
 	  </param>
 	  <when value="fasta">
         <param name="fastain" type="data" format="fasta"
-               label="Assembly Genome" help="Fasta format" />
+               label="Assembly Genome" help="Fasta format"
+			   multiple="true" />
       </when>	  
 	  <when value="fastqsingle">
         <param name="single" type="data" format="fastq,fastq.gz"
-               label="Single read file" help="Fastq(gz) format" />
+               label="Single read file" help="Fastq(gz) format"
+			   multiple="true" />
 		<param name="reads" type="integer" value="10" optional="true"
                label="Minimum reads coverage to search gene" />
       </when>
 	  <when value="fastqpaired">
-        <param name="forward" type="data" format="fastq,fastq.gz"
-               label="Forward read file" help="Fastq(gz) format" />
-        <param name="reverse" type="data" format="fastq,fastq.gz"
-               label="Reverse read file" help="Fastq(gz) format" />
-		<param name="reads" type="integer" value="10" optional="true"
-			   label="Minimum reads coverage to search gene" />
-      </when>
-	  <when value="fastqpaired2">
         <param name="pairedfile" type="data_collection" format="fastq,fastq.gz"
                label="Paired of read files" help="Fastq(gz) format"
                collection_type="paired" />
+		<param name="reads" type="integer" value="10" optional="true"
+			   label="Minimum reads coverage to search gene" />
+	  </when>
+	  <when value="fastqpaired2">
+        <param name="pairedfilelist" type="data_collection" format="fastq,fastq.gz"
+               label="Paired of read files" help="Fastq(gz) format"
+               collection_type="list:paired" />
 		<param name="reads" type="integer" value="10" optional="true"
 			   label="Minimum reads coverage to search gene" />
 	  </when>	
@@ -127,36 +144,77 @@
 	  <param name="database" value="clamlst_ecoli.db" />
 	  <conditional name="data">
 		<param name="input" value="fasta" />
-		<param name="fastain" ftype="fasta" value="EHSB-021.fasta" />
+		<param name="fastain" ftype="fasta" value="EHSB-021.fasta,EHSB-092.fasta" />
 	  </conditional>
 	  <param name="identity" value="0.8" />
 	  <output name="mlst" ftype="txt">
 	  <assert_contents>
 		<has_text_matching expression="155\t6\t4\t14\t16\t24\t8\t14" />
+		<has_text_matching expression="3018\t12\t58\t54\t344\t1\t2\t47" />
 	  </assert_contents>
 	  </output>
 	</test>
-	<!-- <test expect_num_outputs="3"> -->
-	<!--   <param name="database" value="clamlst_ecoli.db" /> -->
-	<!--   <conditional name="data"> -->
-	<!-- 	<param name="input" value="fastqpaired" /> -->
-	<!-- 	<param name="forward" ftype="fastq.gz" value="EHSB-021_R1.fastq.gz" /> -->
-	<!-- 	<param name="reverse" ftype="fastq.gz" value="EHSB-021_R2.fastq.gz" /> -->
-	<!-- 	<param name="reads" value="5" /> -->
-	<!--   </conditional> -->
-	<!--   <param name="fasta" value="true" /> -->
-	<!--   <param name="log" value="true" /> -->
-	<!--   <output name="fastaout" ftype="fasta"> -->
-	<!-- 	<assert_contents> -->
-	<!-- 	  <has_n_lines n="14" /> -->
-	<!-- 	</assert_contents> -->
-	<!--   </output> -->
-	<!--   <output name="mlst" ftype="txt"> -->
-	<!--   <assert_contents> -->
-	<!-- 	<has_text_matching expression="4\t14\t16\t24\t8\t14" /> -->
-	<!--   </assert_contents> -->
-	<!--   </output> -->
-	<!-- </test> -->
+	<test expect_num_outputs="1">
+	  <param name="database" value="clamlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqsingle" />
+		<param name="single" ftype="fastqsanger" value="EHSB-021_R1.fastq.gz,EHSB-021_R2.fastq.gz" />
+	  </conditional>
+	  <param name="identity" value="0.8" />
+	  <param name="reads" value="5" />
+	  <output name="mlst" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="14\t16\t24\t8" />
+	  </assert_contents>
+	  </output>
+	</test>
+	<test expect_num_outputs="1">
+	  <param name="database" value="clamlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqpaired" />
+		<param name="pairedfile">
+		  <collection type="paired">
+			<element name="forward" value="EHSB-021_R1.fastq.gz" />
+			<element name="reverse" value="EHSB-021_R2.fastq.gz" />
+          </collection>
+		</param>
+		<param name="reads" value="5" />
+	  </conditional>
+	  <output name="mlst" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="4\t14\t16\t24\t8\t14" />
+	  </assert_contents>
+	  </output>
+	</test>
+	<test expect_num_outputs="3">
+	  <param name="database" value="clamlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqpaired2" />
+		<param name="pairedfilelist">
+		  <collection type="list:paired">
+			<element name="EHSB-021">
+			  <collection type="paired">
+				<element name="forward" value="EHSB-021_R1.fastq.gz" />
+				<element name="reverse" value="EHSB-021_R2.fastq.gz" />
+			  </collection>
+			</element>
+          </collection>
+		</param>
+		<param name="reads" value="5" />
+	  </conditional>
+	  <param name="fasta" value="true" />
+	  <param name="log" value="true" />
+	  <output name="fastaout" ftype="fasta">
+		<assert_contents>
+		  <has_n_lines n="14" />
+		</assert_contents>
+	  </output>
+	  <output name="mlst" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="4\t14\t16\t24\t8\t14" />
+	  </assert_contents>
+	  </output>
+	</test>
   </tests>
   <help>
 **What it does**

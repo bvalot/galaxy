@@ -8,63 +8,74 @@
   </stdio>
   <version_command>wgMLST -v</version_command>
   <command><![CDATA[
-	cp '${database}' '${databaseout}' &&
-    wgMLST 
+	cp '${database}' '${databaseout}'
 	#if $data.input == "fasta"
-	  add
+	  #for $datain in $data.fastain:
+	    && wgMLST add 
+		-s '$datain.name.replace(" ", "_").replace("-", "_")'
+		#if str($coverage)
+		  -c $coverage
+		#end if
+		#if str($identity)
+		  -i $identity
+		#end if
+		'${databaseout}' '${datain}'
+		#if $log
+	      2>> '${logfile}'
+		#end if
+	  #end for
+	#else if $data.input == "fastqsingle"
+	  #for $datain in $data.single:
+	    && wgMLST add2 
+		-s '$datain.name.replace(" ", "_").replace("-", "_")'
+	    #if str($data.reads)
+	      -r $data.reads
+	    #end if
+		#if str($coverage)
+		  -c $coverage
+		#end if
+		#if str($identity)
+		  -i $identity
+		#end if
+		'${databaseout}' '${datain}'
+		#if $log
+	      2>> '${logfile}'
+		#end if
+	  #end for
+	#else if $data.input == "fastqpaired"
+	  && wgMLST add2 
+	  -s '$data.pairedfile.name.replace(" ", "_").replace("-", "_")'
+	  #if str($data.reads)
+	    -r $data.reads
+	  #end if
+	  #if str($coverage)
+	    -c $coverage
+	  #end if
+	  #if str($identity)
+	    -i $identity
+	  #end if
+	    '${databaseout}' '${data.pairedfile.forward}' '${data.pairedfile.reverse}'
+	  #if $log
+	    2>> '${logfile}'
+	  #end if
 	#else
-	  add2
-	#end if
-	#if str($coverage)
-	  -c $coverage
-	#end if
-	#if str($identity)
-	  -i $identity
-	#end if
-	#if $data.input == "fasta"
-	  #if $strain
-	    -s '$strain'
-	  #else
-	    -s '$data.fastain.name.replace(" ", "_").replace("-", "_")'
-	  #end if
-      '${databaseout}' '${data.fastain}'
-    #end if
-	#if $data.input == "fastqsingle"
-	  #if str($data.reads)
-	    -r $data.reads
-	  #end if
-	  #if $strain
-	    -s '$strain'
-	  #else
-	    -s '$data.single.name.replace(" ", "_").replace("-", "_")'
-	  #end if
-	  '${databaseout}' '${data.single}'
-    #end if
-	#if $data.input == "fastqpaired"
-	  #if str($data.reads)
-	    -r $data.reads
-	  #end if
-	  #if $strain
-	    -s '$strain'
-	  #else
-	    -s '$data.forward.name.replace(" ", "_").replace("-", "_")'
-	  #end if
-      '${databaseout}' '${data.forward}' '${data.reverse}'
-    #end if
-	#if $data.input == "fastqpaired2"
-	  #if str($data.reads)
-	    -r $data.reads
-	  #end if 
-	  #if $strain
-	    -s '$strain'
-	  #else
-	    -s '$data.pairedfile.name.replace(" ", "_").replace("-", "_")'
-	  #end if
-      '${databaseout}' '${data.pairedfile.forward}'
-	  '${data.pairedfile.reverse}'
-    #end if
-	#if $log
-	  2> '${logfile}'
+	  #for $datain in $data.pairedfilelist:
+	    && wgMLST add2 
+		-s '$datain.name.replace(" ", "_").replace("-", "_")'
+	    #if str($data.reads)
+	      -r $data.reads
+	    #end if
+		#if str($coverage)
+		  -c $coverage
+		#end if
+		#if str($identity)
+		  -i $identity
+		#end if
+		'${databaseout}' '${datain.forward}' '${datain.reverse}'
+		#if $log
+	      2>> '${logfile}'
+		#end if
+	  #end for
 	#end if
 	]]>
   </command>
@@ -77,46 +88,47 @@
 	  <param name="input" type="select" label="Select type of data">
         <option value="fasta" selected="true">Assembly (fasta)</option>
         <option value="fastqsingle">Raw data (single)</option>
-        <option value="fastqpaired">Raw data (paired separated)</option>
-        <option value="fastqpaired2">Raw data (paired)</option>
+		<option value="fastqpaired">Raw data (paired)</option>
+        <option value="fastqpaired2">Raw data (List of paired)</option>
 	  </param>
 	  <when value="fasta">
         <param name="fastain" type="data" format="fasta"
-               label="Assembly Genome" help="Fasta format" />
+               label="Assembly Genome" help="Fasta format"
+			   multiple="true" />
       </when>	  
 	  <when value="fastqsingle">
         <param name="single" type="data" format="fastq,fastq.gz"
-               label="Single read file" help="Fastq(gz) format" />
+               label="Single read file" help="Fastq(gz) format"
+			   multiple="true" />
 		<param name="reads" type="integer" value="10" optional="true"
                label="Minimum reads coverage to search gene" />
       </when>
 	  <when value="fastqpaired">
-        <param name="forward" type="data" format="fastq,fastq.gz"
-               label="Forward read file" help="Fastq(gz) format" />
-        <param name="reverse" type="data" format="fastq,fastq.gz"
-               label="Reverse read file" help="Fastq(gz) format" />
-		<param name="reads" type="integer" value="10" optional="true"
-			   label="Minimum reads coverage to search gene" />
-      </when>
-	  <when value="fastqpaired2">
         <param name="pairedfile" type="data_collection" format="fastq,fastq.gz"
                label="Paired of read files" help="Fastq(gz) format"
                collection_type="paired" />
 		<param name="reads" type="integer" value="10" optional="true"
 			   label="Minimum reads coverage to search gene" />
 	  </when>	
+	  <when value="fastqpaired2">
+        <param name="pairedfilelist" type="data_collection" format="fastq,fastq.gz"
+               label="Paired of read files" help="Fastq(gz) format"
+               collection_type="list:paired" />
+		<param name="reads" type="integer" value="10" optional="true"
+			   label="Minimum reads coverage to search gene" />
+	  </when>	
 	</conditional>
-	<param name="strain" type="text" value="" size="50"
-		   optional="false"
-		   label="Strain"
-		   help="Name of the strain">
-	  <sanitizer invalid_char="_" >
-        <valid initial="string.ascii_letters,string.digits">
-          <add value="_" />
-		  <add value="." />
-        </valid>
-    </sanitizer>
-	</param> 
+	<!-- <param name="strain" type="text" value="" size="50" -->
+	<!-- 	   optional="false" -->
+	<!-- 	   label="Strain" -->
+	<!-- 	   help="Name of the strain"> -->
+	<!--   <sanitizer invalid_char="_" > -->
+    <!--     <valid initial="string.ascii_letters,string.digits"> -->
+    <!--       <add value="_" /> -->
+	<!-- 	  <add value="." /> -->
+    <!--     </valid> -->
+    <!-- </sanitizer> -->
+	<!-- </param>  -->
 	<param name="identity" type="float" value="0.9" optional="false"
 		   label="Identity"
 		   help="Minimum identity to search gene" />
@@ -138,7 +150,7 @@
 	  <param name="database" value="wgmlst_ecoli.db" />
 	  <conditional name="data">
 		<param name="input" value="fasta" />
-		<param name="fastain" ftype="fasta" value="EHSB-021.fasta" />
+		<param name="fastain" ftype="fasta" value="EHSB-021.fasta,EHSB-092.fasta" />
 	  </conditional>
 	  <param name="identity" value="0.8" />
 	  <output name="logfile" ftype="txt">
@@ -146,26 +158,78 @@
 		<has_text text="Added 2497 new MLST genes to the database" />
 		<has_text text="Found 32 partial genes, filled 30" />
 		<has_text text="Removed 4 genes" />
+		<has_text text="Added 2496 new MLST genes to the database" />
+		<has_text text="Found 44 partial genes, filled 40" />
+		<has_text text="Removed 5 genes" />
 	  </assert_contents>
 	  </output>
 	</test>
-	<!-- <test expect_num_outputs="2"> -->
-	<!--   <param name="database" value="wgmlst_ecoli.db" /> -->
-	<!--   <param name="strain" value="EHSB-021" /> -->
-	<!--   <conditional name="data"> -->
-	<!-- 	<param name="input" value="fastqpaired" /> -->
-	<!-- 	<param name="forward" ftype="fastq.gz" value="EHSB-021_R1.fastq.gz" /> -->
-	<!-- 	<param name="reverse" ftype="fastq.gz" value="EHSB-021_R2.fastq.gz" /> -->
-	<!-- 	<param name="reads" value="5" /> -->
-	<!--   </conditional> -->
-	<!--   <output name="logfile" ftype="txt"> -->
-	<!--   <assert_contents> -->
-	<!-- 	<has_text_matching expression="Add 24\d\d new MLST genes to database" /> -->
-	<!-- 	<has_text_matching expression="Remove \d genes with uncertain bases" /> -->
-	<!-- 	<has_text_matching expression="Remove \d\d genes with bad CDS" /> -->
-	<!--   </assert_contents> -->
-	<!--   </output> -->
-	<!-- </test> -->
+	<test expect_num_outputs="2">
+	  <param name="database" value="wgmlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqsingle" />
+		<param name="single"
+			   value="EHSB-021_R1.fastq.gz,EHSB-021_R2.fastq.gz" />
+		<param name="reads" value="5" />
+	  </conditional>
+	  <output name="logfile" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="Add 14\d\d new MLST genes to database" />
+		<has_text_matching expression="Remove \d genes with uncertain bases" />
+		<has_text_matching expression="Remove \d\d\d genes with bad CDS" />
+	  </assert_contents>
+	  </output>
+	</test>
+	<test expect_num_outputs="2">
+	  <param name="database" value="wgmlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqpaired" />
+		<param name="pairedfile">
+		  <collection type="paired">
+			<element name="forward" value="EHSB-021_R1.fastq.gz" />
+			<element name="reverse" value="EHSB-021_R2.fastq.gz" />
+          </collection>
+		</param>
+		<param name="reads" value="5" />
+	  </conditional>
+	  <output name="logfile" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="Add 24\d\d new MLST genes to database" />
+		<has_text_matching expression="Remove \d genes with uncertain bases" />
+		<has_text_matching expression="Remove \d\d genes with bad CDS" />
+	  </assert_contents>
+	  </output>
+	</test>
+	<test expect_num_outputs="2">
+	  <param name="database" value="wgmlst_ecoli.db" />
+	  <conditional name="data">
+		<param name="input" value="fastqpaired2" />
+		<param name="pairedfilelist">
+		  <collection type="list:paired">
+			<element name="EHSB-021">
+			  <collection type="paired">
+				<element name="forward" value="EHSB-021_R1.fastq.gz" />
+				<element name="reverse" value="EHSB-021_R2.fastq.gz" />
+			  </collection>
+			</element>
+			<element name="EHSB-021bis">
+			  <collection type="paired">
+				<element name="forward" value="EHSB-021_R1.fastq.gz" />
+				<element name="reverse" value="EHSB-021_R2.fastq.gz" />
+			  </collection>
+			</element>
+          </collection>
+		</param>
+		<param name="reads" value="5" />
+	  </conditional>
+	  <output name="logfile" ftype="txt">
+	  <assert_contents>
+		<has_text_matching expression="Add 24\d\d new MLST genes to database" />
+		<has_text_matching expression="Remove \d genes with uncertain bases" />
+		<has_text_matching expression="Remove \d\d genes with bad CDS" />
+	  </assert_contents>
+	  </output>
+	</test>
   </tests>
   <help>
 **What it does**

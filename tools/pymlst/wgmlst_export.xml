@@ -14,6 +14,9 @@
 	#end if
 	#if $export_result.export == "mlst"
 	  mlst
+	  #if $export_result.mlsttype == "grapetree"
+	  -f grapetree
+	  #end if
 	#end if
 	#if $export_result.export == "strain"
 	  strain
@@ -49,7 +52,7 @@
            help="Sqlite format from cg/wgMLST database" />
 	<conditional name="export_result">
       <param name="export" type="select" label="Select the data export">
-		<option value="distance">Distance matrix between strains on the cg/wgMLST database</option>
+		<option value="distance" selected="true">Distance matrix between strains on the cg/wgMLST database</option>
 		<option value="mlst">cg/wgMLST table for each strain on the cg/wgMLST database</option>
 		<option value="strain">List of the strains on the cg/wgMLST database</option>
 		<option value="gene">List of the genes on the cg/wgMLST database</option>
@@ -59,7 +62,13 @@
                label="Report the number of gene found for each strain" />
       </when>
 	  <when value="distance" />
-	  <when value="mlst" />
+	  <when value="mlst">
+		<param name="mlsttype" type="select"
+			   label="Select the format of export">
+		  <option value="default" selected="true">Default format</option>
+		  <option value="grapetree">Grapetree format</option>
+		</param>
+	  </when>
 	  <when value="gene" />
 	</conditional>
 	<param name="mincover" type="integer" value="0"
