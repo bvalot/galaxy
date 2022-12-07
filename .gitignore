@@ -114,3 +114,6 @@ target/
 
 #Configuraiton file
 pymlst.conf
+
+#Planemo test
+tool_test_output.*
