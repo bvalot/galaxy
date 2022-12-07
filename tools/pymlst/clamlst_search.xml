@@ -1,9 +1,12 @@
-<tool id="clamlst_search_wrapper" name="Search MLST database" version="2.1.3">
+<tool id="clamlst_search_wrapper" name="Search MLST database"
+	  version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.05">
   <description></description>
-  <requirements>
-	<requirement type="package" version="2.1.3">pymlst</requirement>
+  <macros>
+    <import>macro.xml</import>
+  </macros>
+  <expand macro="requirements">
 	<requirement type="package" version="4.8">sed</requirement>
-  </requirements>
+  </expand>
   <stdio>
     <exit_code range="1:" level="fatal" />
   </stdio>
