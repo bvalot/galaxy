@@ -6,7 +6,7 @@ long_description: |
     Performed MLST and cg/wgMLST analysis with pyMLST software
     * Import database from pubMLST or cgMLST.org
     * Add or search assembly genome or raw reads
-    * Export results or sequences for phylogeny
+    * Export results or sequences for phylogeny analysis
 remote_repository_url: https://github.com/bvalot/pyMLST
 categories:
 - Sequence Analysis
